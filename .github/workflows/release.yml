@@ -26,6 +26,7 @@ jobs:
     needs: prepare
     strategy:
       matrix:
+        fail-fast: false
         arch: [x86_64, x86, arm, arm64]
         sdk: [30, 33]
     steps:
