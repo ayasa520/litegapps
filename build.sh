@@ -628,7 +628,7 @@ MAKE(){
 		for w in $LIST_LITEGAPPS_PLUS; do
 			if [ -f $base/core/litegappsx/make.sh ]; then
 				BASED=$base/core/litegappsx/$w
-				chmod 755 $base/core/litegappx/make.sh
+				chmod 755 $base/core/litegappsx/make.sh
 				. $base/core/litegappsx/make.sh
 			else
 				ERROR "[ERROR] <$base/core/litegappsx/make.sh> not found"
