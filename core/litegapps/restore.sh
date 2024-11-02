@@ -79,7 +79,8 @@ for D_ARCH in $LIST_ARCH; do
        	printlog "     REMOVING FILES"
        	del $GAPPS/$D_ARCH/$D_SDK
        	del $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip
-       	exit 1
+       	# exit 1
+        continue
        fi
        
 	fi

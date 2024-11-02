@@ -1,13 +1,13 @@
 version=4.3
 version.code=4.3
 codename=stable
-name.builder=soekarno
+name.builder=rikka
 #unofficial or official
 build.status=unofficial
 set.time.stamp=true
 date.time=202007122239
 #xz or br
-compression=br
+compression=xz
 #1-9
 compression.level=1
 #1-9
@@ -27,6 +27,6 @@ litegapps.tar=single
 #Litegappsx prop
 litegappsx.build=true
 #list-restore = reguler,lts,microg
-litegappsx.restore=lite
+litegappsx.restore=reguler,microg
 #list-type = reguler,lts,microg
-litegappsx.type=microg
+litegappsx.type=reguler,microg
