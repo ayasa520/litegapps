@@ -46,6 +46,15 @@ jobs:
         with:
           path: ./artifacts
 
+      - name: Generate MD5 sums
+        run: |
+          cd ./artifacts
+          find . -type f -not -name "md5sums.txt" -exec sh -c '
+            for file do
+              echo "\"$file\": \"$(md5sum "$file" | cut -d" " -f1)\""
+            done
+          ' sh {} + > md5sums.txt
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
@@ -54,10 +63,12 @@ jobs:
           "$(date +'%Y%m%d')"
           --repo '${{ github.repository }}'
           --notes ""
-      - name: Upload dists to GitHub Release
+
+      - name: Upload dists and MD5 sums to GitHub Release
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: >-
           gh release upload
-          "$(date +'%Y%m%d')" ./artifacts/**/*/*
+          "$(date +'%Y%m%d')"
+          ./artifacts/**/*/* ./artifacts/md5sums.txt
           --repo '${{ github.repository }}'
