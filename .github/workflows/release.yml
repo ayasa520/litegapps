@@ -20,7 +20,7 @@ jobs:
         with:
           name: common-files
           path: .  # 将整个工作区上传以便包含下载的文件
-
+          retention-days: 1 # 可选，设置保留天数
   build:
     runs-on: ubuntu-latest
     needs: prepare
@@ -50,7 +50,7 @@ jobs:
         with:
           name: litegapps-${{ matrix.arch }}-${{ matrix.sdk }}
           path: output/litegapps/${{ matrix.arch }}/${{ matrix.sdk }}/lite/
-          retention-days: 7 # 可选，设置保留天数
+          retention-days: 1 # 可选，设置保留天数
 
   github-release:
     name: GitHub Release
