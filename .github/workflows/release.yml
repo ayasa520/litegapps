@@ -3,27 +3,8 @@ name: Create GitHub Release
 on: push
 
 jobs:
-  prepare:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up environment
-        run: sudo apt-get update && sudo apt install -y zip tar xz-utils unzip bash brotli curl
-
-      - name: Download common files
-        run: bash build.sh restore
-
-      - name: Upload common files
-        uses: actions/upload-artifact@v4
-        with:
-          name: common-files
-          path: .  # 将整个工作区上传以便包含下载的文件
-          retention-days: 1 # 可选，设置保留天数
   build:
     runs-on: ubuntu-latest
-    needs: prepare
     strategy:
       fail-fast: false
       matrix:
@@ -33,17 +14,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download common files
-        uses: actions/download-artifact@v4
-        with:
-          name: common-files
-          path: .
-
       - name: Set up environment
         run: sudo apt-get update && sudo apt install -y zip tar xz-utils unzip bash brotli curl
+      
+      - name: Modify config file
+        run: |
+          sed -i 's/^restore\.sdk=.*$/restore.sdk=${{ matrix.sdk }}/g' core/litegapps/lite/config
+          sed -i 's/^restore\.arch=.*$/restore.sdk=${{ matrix.arch }}/g' core/litegapps/lite/config
 
       - name: Run build script
-        run: bash build.sh make litegapps lite ${{ matrix.arch }} ${{ matrix.sdk }}
+        run: bash build.sh restore && bash build.sh make litegapps lite ${{ matrix.arch }} ${{ matrix.sdk }}
 
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4

@@ -615,6 +615,7 @@ MAKE(){
 				BASED=$base/core/litegapps/$i
 				chmod 755 $base/core/litegapps/make.sh
 				. $base/core/litegapps/make.sh
+                printlog "here1"
 			else
 		 		ERROR "[ERROR] <$base/core/litegapps/make.sh> not found"
 			fi
