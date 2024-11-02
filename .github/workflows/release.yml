@@ -1,0 +1,55 @@
+name: Create GitHub Release
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, x86, arm, arm64]
+        sdk: [30, 33]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up environment
+        run: sudo apt-get update && sudo apt install -y zip tar xz-utils unzip bash brotli curl
+
+      - name: Run build script
+        run: bash build.sh make litegapps lite ${{ matrix.arch }} ${{ matrix.sdk }}
+
+      - name: Store the distribution packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: litegapps-${{ matrix.arch }}-${{ matrix.sdk }}
+          path: output/litegapps/${{ matrix.arch }}/${{ matrix.sdk }}/lite/
+          retention-days: 7 # 可选，设置保留天数
+  github-release:
+    name: GitHub Release
+    needs: [build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Download Linux dist
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create
+          '${{ github.ref_name }}'
+          --repo '${{ github.repository }}'
+          --notes ""
+      - name: Upload dists to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload
+          '${{ github.ref_name }}' ./artifacts/**/*
+          --repo '${{ github.repository }}'
