@@ -71,7 +71,7 @@ make_flashable_litegapps(){
 			
 		local MODULE_PROP=$tmp/$WFL/module.prop
 		local MODULE_DESC=`read_config desc`
-		local MODULE_UPDATE=https://raw.githubusercontent.com/litegapps/updater/main/core/litegapps++/$(read_config dir_name)/$WFL/update.json
+		local MODULE_UPDATE=https://raw.githubusercontent.com/litegapps/updater/main/core/litegappsx/$(read_config dir_name)/$WFL/update.json
 		SED "$(getp litegapps_type $MODULE_PROP)" "litegappsx" $MODULE_PROP
 		SED "$(getp name $MODULE_PROP)" "$NAME $PROP_STATUS" $MODULE_PROP
 		SED "$(getp id $MODULE_PROP)" "litegapps" $MODULE_PROP

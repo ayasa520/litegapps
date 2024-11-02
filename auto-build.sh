@@ -379,7 +379,7 @@ LITE (){
 	
 MAKE_ADDON(){
 	bash $BASED/packages/make make $ARCH $SDK
-	ADDON_RELEASE=/home/frs/project/litegapps/addon/$ARCH/$SDK/
+	ADDON_RELEASE=/home/rikka/Projects/litegapps/addon/$ARCH/$SDK/
 	rm -rf $ADDON_RELEASE
 	mkdir -p $ADDON_RELEASE
 	echo "- Release Addon <$BASED/packages/output/$ARCH/$SDK/> <$ADDON_RELEASE>"
@@ -388,7 +388,7 @@ MAKE_ADDON(){
 	
 MAKE_LITEGAPPS(){
 	
-	local RELEASE=/home/frs/project/litegapps/litegapps/$ARCH/$SDK
+	local RELEASE=/home/rikka/Projects/litegapps/litegapps/$ARCH/$SDK
 	for LIST_MAKSU in $(find $BASED/packages/output -name MAKSU* -type f); do
 		echo "-- Removing <$LIST_MAKSU>"
 		rm -rf $LIST_MAKSU
@@ -503,7 +503,7 @@ CLEAN_RELEASE(){
 	
 	}
 while true; do
-HOMEE=/home/frs/project/litegapps
+HOMEE=/home/rikka/Projects/litegapps
 echo -n "    Select architecture : "
 read selarch
 case $selarch in

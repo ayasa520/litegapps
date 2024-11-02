@@ -474,7 +474,7 @@ UPLOAD(){
 	cd $out
 	find * -type f -name *MAGISK* | while read INPUT_OUT; do
 	SC=$INPUT_OUT
-	TG=/home/frs/project/litegapps/$SC
+	TG=/home/rikka/Projects/litegapps/$SC
 	printlog "- Uploading <$SC> to <$TG>"
 	scp $SC $USERNAME@web.sourceforge.net:$TG
 	if [ $? -eq 0 ]; then
@@ -485,13 +485,13 @@ UPLOAD(){
 	done
 	find * -type f -name *RECOVERY* | while read INPUT_OUT; do
 	SC=$INPUT_OUT
-	TG=/home/frs/project/litegapps/$SC
+	TG=/home/rikka/Projects/litegapps/$SC
 	printlog "- Uploading <$SC> to <$TG>"
 	scp $SC $USERNAME@web.sourceforge.net:$TG
 	done
 	find * -type f -name *AUTO* | while read INPUT_OUT; do
 	SC=$INPUT_OUT
-	TG=/home/frs/project/litegapps/$SC
+	TG=/home/rikka/Projects/litegapps/$SC
 	printlog "- Uploading <$SC> to <$TG>"
 	scp $SC $USERNAME@web.sourceforge.net:$TG
 	done
@@ -562,14 +562,14 @@ RESTORE(){
 			fi
 		done
 	fi
-	if [ $(get_config litegapps++.build) = true ]; then
-		for i in $(get_config litegapps++.restore | sed "s/,/ /g"); do
-			if [ -f $base/core/litegapps++/$i/restore.sh ]; then
-				BASED=$base/core/litegapps++/$i
-				chmod 755 $base/core/litegapps++/$i/restore.sh
-				. $base/core/litegapps++/$i/restore.sh
+	if [ $(get_config litegappsx.build) = true ]; then
+		for i in $(get_config litegappsx.restore | sed "s/,/ /g"); do
+			if [ -f $base/core/litegappsx/$i/restore.sh ]; then
+				BASED=$base/core/litegappsx/$i
+				chmod 755 $base/core/litegappsx/$i/restore.sh
+				. $base/core/litegappsx/$i/restore.sh
 			else
-				printlog "! [SKIP] <$base/core/litegapps++/$i/restore.sh> Not found"
+				printlog "! [SKIP] <$base/core/litegappsx/$i/restore.sh> Not found"
 			fi
 		done
 	fi
@@ -623,7 +623,7 @@ MAKE(){
 	#################################################
 	#Litegappsx
 	#################################################
-	if [ $(get_config litegappsx.build) = true ]; then
+	if [ "$PRODUCT" = "litegappsx" ] || [ $(get_config litegappsx.build) = true ]; then
 		LIST_LITEGAPPS_PLUS=`get_config litegappsx.type | sed "s/,/ /g"`
 		for w in $LIST_LITEGAPPS_PLUS; do
 			if [ -f $base/core/litegappsx/make.sh ]; then
@@ -692,7 +692,7 @@ UPDATE_GAPPS_SERVER(){
 	cd $tmp
 	for C in $(find * -name *.zip -type f); do
 		SC=$C
-		TG=/home/frs/project/litegapps/$SC
+		TG=/home/rikka/Projects/litegapps/$SC
 		printlog "- Uploading <$SC> to <$TG>"
 		scp $SC $USERNAME@web.sourceforge.net:$TG
 	done

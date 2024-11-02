@@ -65,12 +65,12 @@ This is a tool for building litegapps
  
 ``litegapps.type=lite`` list-type = lite,core,go,micro,pixel,nano,basic
  
-#Litegapps++ prop
-``litegapps++.build=true`` true/false
+#litegappsx prop
+``litegappsx.build=true`` true/false
  
-``litegapps++.restore=reguler`` list-restore = ``reguler,lts,microg``
+``litegappsx.restore=reguler`` list-restore = ``reguler,lts,microg``
  
-``litegapps++.type=microg`` list-type = ``reguler,lts,microg``
+``litegappsx.type=microg`` list-type = ``reguler,lts,microg``
  
 
 ### compression benchmark

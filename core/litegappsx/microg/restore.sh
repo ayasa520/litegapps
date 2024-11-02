@@ -11,7 +11,7 @@ for i in $GAPPS $GAPPS_FILES $MODULES $MODULES_FILES; do
 	[ ! -d $i ] && cdir $i
 done
 printlog " "
-printlog "        Litegapps++ MicroG restore"
+printlog "        litegappsx MicroG restore"
 printlog " "
 for WAHYU in sdk cross_system arch; do
 	if [ -f $GAPPS_FILES/$WAHYU.zip ]; then
@@ -28,7 +28,7 @@ for WAHYU in sdk cross_system arch; do
 		fi
 	else
 		printlog "1. Downloading : $WAHYU.zip"
-       curl -L -o $GAPPS_FILES/$WAHYU.zip https://gitlab.com/litegapps/litegapps-server/-/raw/main/litegapps++/microg/$WAHYU.zip >/dev/null 2>&1
+       curl -L -o $GAPPS_FILES/$WAHYU.zip https://gitlab.com/litegapps/litegapps-server/-/raw/main/litegappsx/microg/$WAHYU.zip >/dev/null 2>&1
        if [  $? -eq 0 ]; then
        	printlog "     Downloading status : Successful"
        	printlog "     File size : $(du -sh $GAPPS_FILES/$WAHYU.zip | cut -f1)"
