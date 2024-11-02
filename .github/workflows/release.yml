@@ -30,7 +30,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: litegapps-${{ matrix.arch }}-${{ matrix.sdk }}
-          path: output/litegapps/${{ matrix.arch }}/${{ matrix.sdk }}/lite/$(date '+%Y-%m-%d')/
+          path: output/litegapps/${{ matrix.arch }}/${{ matrix.sdk }}/lite/
           retention-days: 1 # 可选，设置保留天数
 
   github-release:
