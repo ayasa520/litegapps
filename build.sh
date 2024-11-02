@@ -9,7 +9,7 @@ print(){
 	}
 	
 printlog(){
-	print "$1"
+    print "$1"
 	if [ "$1" != " " ]; then
 	echo "$1 [$(date '+%d/%m/%Y %H:%M:%S')]" >> $log
 	else
@@ -734,3 +734,5 @@ print " "
 esac
 
 test -d $tmp && del $tmp
+
+exit 0

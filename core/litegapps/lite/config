@@ -1,7 +1,5 @@
-sdk=34
-arch=arm64
-restore.sdk=31 30
-restore.arch=arm64 arm x84_64 x86
+restore.sdk=33 30
+restore.arch=arm64 arm x86_64 x86
 name=LiteGapps
 dir_name=lite
 modules=false
