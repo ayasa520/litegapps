@@ -9,7 +9,7 @@ print(){
 	}
 	
 printlog(){
-	print "$1"
+    print "$1"
 	if [ "$1" != " " ]; then
 	echo "$1 [$(date '+%d/%m/%Y %H:%M:%S')]" >> $log
 	else
@@ -615,7 +615,6 @@ MAKE(){
 				BASED=$base/core/litegapps/$i
 				chmod 755 $base/core/litegapps/make.sh
 				. $base/core/litegapps/make.sh
-                printlog "here1"
 			else
 		 		ERROR "[ERROR] <$base/core/litegapps/make.sh> not found"
 			fi
@@ -735,3 +734,5 @@ print " "
 esac
 
 test -d $tmp && del $tmp
+
+exit 0

@@ -8,8 +8,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch: [x86_64, x86, arm, arm64]
-        sdk: [30, 33]
+        arch: [x86_64]
+        sdk: [30]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,7 +20,8 @@ jobs:
       - name: Modify config file
         run: |
           sed -i 's/^restore\.sdk=.*$/restore.sdk=${{ matrix.sdk }}/g' core/litegapps/lite/config
-          sed -i 's/^restore\.arch=.*$/restore.sdk=${{ matrix.arch }}/g' core/litegapps/lite/config
+          sed -i 's/^restore\.arch=.*$/restore.arch=${{ matrix.arch }}/g' core/litegapps/lite/config
+          cat core/litegapps/lite/config
 
       - name: Run build script
         run: bash build.sh restore && bash build.sh make litegapps lite ${{ matrix.arch }} ${{ matrix.sdk }}
