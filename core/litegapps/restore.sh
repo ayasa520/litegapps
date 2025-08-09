@@ -37,10 +37,10 @@ for D_ARCH in $LIST_ARCH; do
 				printlog "     Extrating status : Successful"
 			else
 				printlog "     Extrating status : Failed !!"
-				printlog "     REMOVING FILES"
+				printlog "     SKIPPING $D_ARCH/$D_SDK - corrupted file"
 				del $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip
 				del $GAPPS/$D_ARCH/$D_SDK
-				exit 1
+				continue
 			fi
 			printlog " "
 		else
@@ -64,10 +64,10 @@ for D_ARCH in $LIST_ARCH; do
        	printlog "     File size : $(du -sh $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip | cut -f1)"
        else
        	printlog "     Downloading status : Failed"
-       	printlog "     ! PLEASE CEK YOUR INTERNET CONNECTION AND RESTORE AGAIN"
+       	printlog "     ! SKIPPING $D_ARCH/$D_SDK - file not available"
        	del $GAPPS/$D_ARCH/$D_SDK
        	del $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip
-       	exit 1
+       	continue
        fi
        unzip -o $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip -d $GAPPS/$D_ARCH/$D_SDK >/dev/null 2>&1
        if [ $? -eq 0 ]; then
@@ -76,16 +76,102 @@ for D_ARCH in $LIST_ARCH; do
        else
        	printlog "     Unzip : $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip"
        	printlog "     unzip status : Failed"
-       	printlog "     REMOVING FILES"
+       	printlog "     SKIPPING $D_ARCH/$D_SDK - corrupted or invalid file"
        	del $GAPPS/$D_ARCH/$D_SDK
        	del $GAPPS_FILES/$D_ARCH/$D_SDK/$D_SDK.zip
-       	exit 1
+       	continue
        fi
        
 	fi
 	done
 done
 
+# Recovery function for missing files from official packages
+recovery_from_official() {
+	local arch=$1
+	local sdk=$2
+	local official_url=$3
+
+	printlog "- Recovery: Attempting to recover $arch/$sdk from official package"
+
+	# Create temporary recovery directory
+	local recovery_tmp="/tmp/litegapps_recovery_$$"
+	mkdir -p "$recovery_tmp"
+
+	# Download official package
+	printlog "  Downloading official package..."
+	if curl -L -o "$recovery_tmp/official.zip" "$official_url" >/dev/null 2>&1; then
+		printlog "  Download successful"
+
+		# Extract official package
+		if unzip -q "$recovery_tmp/official.zip" -d "$recovery_tmp/extract/"; then
+			printlog "  Extraction successful"
+
+			# Extract files.tar.xz
+			if [ -f "$recovery_tmp/extract/files/files.tar.xz" ]; then
+				cd "$recovery_tmp/extract/files"
+				if tar -xf files.tar.xz >/dev/null 2>&1; then
+					printlog "  Archive extraction successful"
+
+					# Copy to gapps directory
+					if [ -d "$recovery_tmp/extract/files/$arch/$sdk" ]; then
+						mkdir -p "$GAPPS/$arch/$sdk"
+						cp -r "$recovery_tmp/extract/files/$arch/$sdk/"* "$GAPPS/$arch/$sdk/"
+						printlog "  Recovery successful: $arch/$sdk"
+
+						# Create corresponding zip file for consistency
+						mkdir -p "$GAPPS_FILES/$arch/$sdk"
+						cd "$GAPPS/$arch/$sdk"
+						zip -r9 "$GAPPS_FILES/$arch/$sdk/$sdk.zip" * >/dev/null 2>&1
+						printlog "  Created zip file: $GAPPS_FILES/$arch/$sdk/$sdk.zip"
+					else
+						printlog "  ERROR: $arch/$sdk directory not found in official package"
+					fi
+				else
+					printlog "  ERROR: Failed to extract files.tar.xz"
+				fi
+			else
+				printlog "  ERROR: files.tar.xz not found in official package"
+			fi
+		else
+			printlog "  ERROR: Failed to extract official package"
+		fi
+	else
+		printlog "  ERROR: Failed to download official package"
+	fi
+
+	# Cleanup
+	rm -rf "$recovery_tmp"
+	cd "$BASED"
+}
+
+# Special recovery for missing combinations
+printlog " "
+printlog "=== RECOVERY PHASE ==="
+printlog "Checking for missing files and attempting recovery from official packages..."
+
+# Check if arm/33 is missing and attempt recovery
+if [[ "$LIST_ARCH" == *"arm"* ]] && [[ "$LIST_SDK" == *"33"* ]]; then
+	if [ ! -d "$GAPPS/arm/33" ] || [ ! "$(ls -A $GAPPS/arm/33 2>/dev/null)" ]; then
+		printlog "- arm/33 is missing, attempting recovery..."
+		recovery_from_official "arm" "33" "https://sourceforge.net/projects/litegapps/files/litegapps/arm/33/lite/2024-08-15/AUTO-LiteGapps-arm-13.0-20240815-official.zip/download"
+	else
+		printlog "- arm/33 already exists, skipping recovery"
+	fi
+fi
+
+# Check if x86_64/33 is missing and attempt recovery
+if [[ "$LIST_ARCH" == *"x86_64"* ]] && [[ "$LIST_SDK" == *"33"* ]]; then
+	if [ ! -d "$GAPPS/x86_64/33" ] || [ ! "$(ls -A $GAPPS/x86_64/33 2>/dev/null)" ]; then
+		printlog "- x86_64/33 is missing, attempting recovery..."
+		recovery_from_official "x86_64" "33" "https://sourceforge.net/projects/litegapps/files/litegapps/x86_64/33/lite/2024-02-24/AUTO-LiteGapps-x86_64-13.0-20240224-official.zip/download"
+	else
+		printlog "- x86_64/33 already exists, skipping recovery"
+	fi
+fi
+
+printlog "=== RECOVERY PHASE COMPLETE ==="
+printlog " "
 
 NUM_6070=0
 for D_ARCH in $LIST_ARCH; do

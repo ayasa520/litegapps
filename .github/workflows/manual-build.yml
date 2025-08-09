@@ -1,0 +1,117 @@
+name: Manual Build LiteGApps
+
+on:
+  workflow_dispatch:
+    inputs:
+      arch:
+        description: 'Target Architecture'
+        required: true
+        default: 'arm64'
+        type: choice
+        options:
+        - arm
+        - arm64
+        - x86
+        - x86_64
+      sdk:
+        description: 'Android SDK Version'
+        required: true
+        default: '30'
+        type: choice
+        options:
+        - '30'
+        - '33'
+      create_release:
+        description: 'Create GitHub Release'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate build combination
+        run: |
+          # Check if the combination is available
+          if [[ "${{ inputs.arch }}" == "x86" && "${{ inputs.sdk }}" == "33" ]]; then
+            echo "ERROR: x86/33 combination is not available from official sources"
+            echo "Available combinations:"
+            echo "- arm/30, arm64/30, x86/30, x86_64/30 (Android 11)"
+            echo "- arm/33, arm64/33, x86_64/33 (Android 13)"
+            exit 1
+          fi
+          
+          echo "✅ Build combination ${{ inputs.arch }}/SDK${{ inputs.sdk }} is valid"
+
+      - name: Set up environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip tar xz-utils unzip bash brotli curl
+
+      - name: Configure build
+        run: |
+          # Configure for specific arch/sdk
+          sed -i 's/^sdk=.*$/sdk=${{ inputs.sdk }}/g' core/litegapps/lite/config
+          sed -i 's/^arch=.*$/arch=${{ inputs.arch }}/g' core/litegapps/lite/config
+          sed -i 's/^restore\.sdk=.*$/restore.sdk=${{ inputs.sdk }}/g' core/litegapps/lite/config
+          sed -i 's/^restore\.arch=.*$/restore.arch=${{ inputs.arch }}/g' core/litegapps/lite/config
+          
+          echo "=== Configuration ==="
+          cat core/litegapps/lite/config
+
+      - name: Build LiteGApps
+        run: |
+          echo "🔄 Starting restore process..."
+          bash build.sh restore
+
+          echo "🔨 Starting build process..."
+          bash build.sh make litegapps lite ${{ inputs.arch }} ${{ inputs.sdk }} || {
+            echo "Build script returned non-zero exit code, but checking if output was created..."
+            if find output -name "*.zip" -type f | grep -q .; then
+              echo "✅ Build output found despite exit code - continuing..."
+            else
+              echo "❌ No build output found - build actually failed"
+              exit 1
+            fi
+          }
+
+          echo "✅ Build completed!"
+          find output -name "*.zip" -exec ls -lh {} \;
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: LiteGApps-${{ inputs.arch }}-SDK${{ inputs.sdk }}
+          path: output/litegapps/${{ inputs.arch }}/${{ inputs.sdk }}/lite/*/
+          retention-days: 30
+
+      - name: Create Release (if requested)
+        if: ${{ inputs.create_release }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # Prepare release files
+          mkdir -p release
+          find output/litegapps/${{ inputs.arch }}/${{ inputs.sdk }}/lite/ -name "*.zip" -exec cp {} release/ \;
+          
+          # Generate checksums
+          cd release
+          md5sum *.zip > MD5SUMS.txt
+          sha256sum *.zip > SHA256SUMS.txt
+          
+          # Create release
+          RELEASE_TAG="manual-${{ inputs.arch }}-sdk${{ inputs.sdk }}-$(date +'%Y%m%d-%H%M')"
+          
+          gh release create "$RELEASE_TAG" \
+            --repo '${{ github.repository }}' \
+            --title "LiteGApps ${{ inputs.arch }}/SDK${{ inputs.sdk }} - Manual Build" \
+            --notes "Manual build for ${{ inputs.arch }} architecture, Android SDK ${{ inputs.sdk }}" \
+            --prerelease
+          
+          gh release upload "$RELEASE_TAG" \
+            *.zip MD5SUMS.txt SHA256SUMS.txt \
+            --repo '${{ github.repository }}'

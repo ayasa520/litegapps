@@ -3,7 +3,7 @@ version.code=4.6
 codename=stable
 name.builder=wahyu6060
 #unofficial or official
-build.status=wahyu6070
+build.status=unofficial
 set.time.stamp=true
 date.time=202007122239
 #xz or br
@@ -11,7 +11,7 @@ compression=xz
 #1-9
 compression.level=9
 #1-9
-zip.level=9
+zip.level=6
 # true/false
 zip.signer=false
 
